@@ -149,9 +149,19 @@ const remove = (iconContainer: HTMLElement, options?: RemoveOptions) => {
   }
 };
 
+/**
+ * Asks Vertical Tabs to re-run icon render handlers for already-mounted tabs.
+ * No-op when Vertical Tabs is not installed.
+ * @param plugin IconizePlugin instance.
+ */
+const requestVerticalTabsRefresh = (plugin: IconizePlugin): void => {
+  plugin.app.workspace.trigger('vertical-tabs:request-icon-refresh');
+};
+
 export default {
   add,
   update,
   remove,
   getTabLeavesOfFilePath,
+  requestVerticalTabsRefresh,
 };

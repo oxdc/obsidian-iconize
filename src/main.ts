@@ -132,7 +132,31 @@ export default class IconizePlugin extends Plugin {
     // TODO: Check if needed
     await this.iconPackManager.loadUsedIcons([...usedIconNames]);
 
-    this.app.workspace.onLayoutReady(() => this.handleChangeLayout());
+    // Vertical Tabs sidebar icons (no-op when Vertical Tabs is not installed).
+    this.registerEvent(
+      // @ts-expect-error Vertical Tabs API
+      this.app.workspace.on(
+        'vertical-tabs:render-tab-icon',
+        (leaf: WorkspaceLeaf, iconEl: HTMLElement) => {
+          if (!this.getSettings().iconInTabsEnabled) return;
+
+          // Prefer view state so deferred tabs still resolve a file path.
+          const filePath = leaf.getViewState().state?.file as
+            | string
+            | undefined;
+          if (!filePath || !icon.getByPath(this, filePath)) return;
+
+          void iconTabs.add(this, filePath, iconEl, {
+            iconColor: this.getIconColor(filePath),
+          });
+        },
+      ),
+    );
+
+    this.app.workspace.onLayoutReady(() => {
+      this.handleChangeLayout();
+      iconTabs.requestVerticalTabsRefresh(this);
+    });
 
     this.addCommand({
       id: 'iconize:set-icon-for-file',
@@ -914,6 +938,7 @@ export default class IconizePlugin extends Plugin {
 
   async saveIconFolderData(): Promise<void> {
     await this.saveData(this.data);
+    iconTabs.requestVerticalTabsRefresh(this);
   }
 
   async checkRecentlyUsedIcons(): Promise<void> {

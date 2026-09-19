@@ -82,6 +82,7 @@ export const saveIconToIconPack = (
   }
 
   const iconPack = plugin.getIconPackManager().getIconPackByPrefix(iconPrefix);
+  if (!iconPack) return;
   if (
     iconPack.getName() === LUCIDE_ICON_PACK_NAME &&
     !plugin.doesUseCustomLucideIconPack()
@@ -107,6 +108,7 @@ export const removeIconFromIconPack = (
   const prefix = iconNameWithPrefix.substring(0, identifier);
   const iconName = iconNameWithPrefix.substring(identifier);
   const iconPack = plugin.getIconPackManager().getIconPackByPrefix(prefix);
+  if (!iconPack) return;
   const duplicatedIcon = plugin.getDataPathByValue(iconNameWithPrefix);
   if (!duplicatedIcon) {
     iconPack.removeIcon(plugin.getIconPackManager().getPath(), iconName);
